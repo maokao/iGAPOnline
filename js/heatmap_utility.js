@@ -1107,6 +1107,22 @@ function changeColFlip(newFlip, heatmapId) {
 }
 
 //#########################################################
+function changeDisplayCondition(conditionName, paletteName, heatmapId) {
+    if(optionTargetDataMap == "rawdata")
+    {
+        if(conditionName == "RangeMatrix" || conditionName == "RangeRow" || conditionName == "RangeCol")
+            resetInputRange(min_value,max_value);
+        else if(conditionName == "CenterMatrix" || conditionName == "CenterRow" || conditionName == "CenterCol")
+        {
+            if(Math.abs(max_value)>Math.abs(min_value))
+                resetInputRange(-1*Math.abs(max_value),Math.abs(max_value));
+            else
+                resetInputRange(-1*Math.abs(min_value),Math.abs(min_value));
+        }
+    }
+}
+
+//#########################################################
 function changePalette(conditionName, paletteName, heatmapId) {
     var colorID = d3.interpolateRdBu;
     //console.log("conditionName: "+conditionName);
@@ -1140,10 +1156,11 @@ function changePalette(conditionName, paletteName, heatmapId) {
 
     if(optionTargetDataMap == "rawdata")
     {
-        var minInputRange1 = $('#inputRange1').data('slider').getValue()[0];
-        var maxInputRange1 = $('#inputRange1').data('slider').getValue()[1];
-        var minInputRange2 = $('#inputRange2').data('slider').getValue()[0];
-        var maxInputRange2 = $('#inputRange2').data('slider').getValue()[1];
+
+        let minInputRange1 = $('#inputRange1').data('slider').getValue()[0];
+        let maxInputRange1 = $('#inputRange1').data('slider').getValue()[1];
+        let minInputRange2 = $('#inputRange2').data('slider').getValue()[0];
+        let maxInputRange2 = $('#inputRange2').data('slider').getValue()[1];
         if(conditionName == "RangeMatrix")
         {
             var colorScale = null;
@@ -1364,6 +1381,290 @@ function changePalette(conditionName, paletteName, heatmapId) {
 
             changeLegentTextForRawDataMatrix(conditionName);
         }
+        else if(conditionName == "CenterMatrix")
+        {
+            var colorScale = null;
+            //console.log("min: "+minInputRange2+", max: "+maxInputRange2);
+            if(rdPaletteReverse)
+                colorScale = d3.scaleSequential()
+                        //.domain([max_value, min_value])
+                        .domain([minInputRange2, maxInputRange2])
+                        .interpolator(colorID);  
+            else
+                colorScale = d3.scaleSequential()
+                        //.domain([max_value, min_value])
+                        .domain([maxInputRange2, minInputRange2])
+                        .interpolator(colorID);  
+
+            var svg = d3.select(heatmapId);
+            var t = svg.transition().duration(500);
+            t.select("#mv").selectAll(".rect").selectAll(".cell")
+                .style("fill", function(d) {
+                        if (d != null) 
+                        {
+                            //console.log("name: "+$(this).parent().data("name"));
+                            let arr = $(this).parent().data("name").split(',');
+                            let avg = (Number(arr[0])+Number(arr[1]))/2;
+
+                            //if(d<minInputRange1 || d>maxInputRange1)
+                            if(avg<minInputRange1 || avg>maxInputRange1)
+                            {   
+                                return "#ffffff";
+                            }
+                            else
+                                return colorScale(d);
+                        }
+                        else return "url(#diagonalHatch)";
+                });
+            d3.select("#md_colorspec").select("svg").selectAll(".cellLegend")
+                .style("fill", function(d, i) {
+                    return colorScale(d);
+                });
+
+            changeLegentTextForRawDataMatrix(conditionName);
+        }
+        else if(conditionName == "CenterRow")
+        {
+            var colorScale1 = d3.scaleSequential()
+                        .domain([max_value, min_value])
+                        .interpolator(colorID);  
+
+            var svg = d3.select(heatmapId);
+            var t = svg.transition().duration(500);
+            t.select("#mv").selectAll(".cell")
+                .style("fill", function(d) {
+
+                    let rownum = $(this).parent().data("row");
+                    let colorScale;
+                    //console.log(rownum+", min: "+minInputRange2+", max: "+maxInputRange2+", min1: "+data_row_min_value[rownum]+", max1: "+data_row_max_value[rownum]);
+                    if(data_row_min_value[rownum]<minInputRange2)
+                    {
+                        if(data_row_max_value[rownum]>maxInputRange2)
+                        {
+                            if(Math.abs(maxInputRange2) < Math.abs(minInputRange2))
+                            {
+                                if(rdPaletteReverse)
+                                    colorScale = d3.scaleSequential()
+                                    //.domain([minInputRange2, maxInputRange2])
+                                    .domain([-1*Math.abs(maxInputRange2), Math.abs(maxInputRange2)])
+                                    .interpolator(colorID); 
+                                else
+                                    colorScale = d3.scaleSequential()
+                                    //.domain([maxInputRange2, minInputRange2])
+                                    .domain([Math.abs(maxInputRange2), -1*Math.abs(maxInputRange2)])
+                                    .interpolator(colorID); 
+                            }
+                            else
+                            {
+                                if(rdPaletteReverse)
+                                    colorScale = d3.scaleSequential()
+                                    .domain([-1*Math.abs(minInputRange2), Math.abs(minInputRange2)])
+                                    .interpolator(colorID); 
+                                else
+                                    colorScale = d3.scaleSequential()
+                                    .domain([Math.abs(minInputRange2), -1*Math.abs(minInputRange2)])
+                                    .interpolator(colorID);   
+                            }
+                        }
+                        else
+                        {  
+                            if(rdPaletteReverse)
+                                colorScale = d3.scaleSequential()
+                                .domain([-1*Math.abs(minInputRange2), Math.abs(minInputRange2)])
+                                .interpolator(colorID); 
+                            else
+                                colorScale = d3.scaleSequential()
+                                .domain([Math.abs(minInputRange2), -1*Math.abs(minInputRange2)])
+                                .interpolator(colorID);                 
+                        }
+                    }
+                    else
+                    {
+                        if(data_row_max_value[rownum]>maxInputRange2)
+                        { 
+                            if(rdPaletteReverse)
+                                colorScale = d3.scaleSequential()
+                                .domain([-1*Math.abs(maxInputRange2), Math.abs(maxInputRange2)])
+                                .interpolator(colorID);  
+                            else
+                                colorScale = d3.scaleSequential()
+                                .domain([Math.abs(maxInputRange2), -1*Math.abs(maxInputRange2)])
+                                .interpolator(colorID);  
+                        }
+                        else
+                        {  
+                            if(Math.abs(data_row_max_value[rownum])>Math.abs(data_row_min_value[rownum]))
+                            {//console.log(rownum+", min2: "+-1*Math.abs(data_row_max_value[rownum])+", max2: "+Math.abs(data_row_max_value[rownum])+", min1: "+data_row_min_value[rownum]+", max1: "+data_row_max_value[rownum]);
+                                if(rdPaletteReverse)
+                                    colorScale = d3.scaleSequential()
+                                    .domain([-1*Math.abs(data_row_max_value[rownum]), Math.abs(data_row_max_value[rownum])])
+                                    .interpolator(colorID);   
+                                else
+                                    colorScale = d3.scaleSequential()
+                                    .domain([Math.abs(data_row_max_value[rownum]), -1*Math.abs(data_row_max_value[rownum])])
+                                    .interpolator(colorID);    
+                            }
+                            else
+                            {
+                                if(rdPaletteReverse)
+                                    colorScale = d3.scaleSequential()
+                                    .domain([-1*Math.abs(data_row_min_value[rownum]), Math.abs(data_row_min_value[rownum])])
+                                    .interpolator(colorID);   
+                                else
+                                    colorScale = d3.scaleSequential()
+                                    .domain([Math.abs(data_row_min_value[rownum]), -1*Math.abs(data_row_min_value[rownum])])
+                                    .interpolator(colorID);    
+                            }  
+                        }
+                    }
+                    if (d != null) 
+                    {
+                        let arr = $(this).parent().data("name").split(',');
+                        let avg = (Number(arr[0])+Number(arr[1]))/2;
+                        if(avg<minInputRange1 || avg>maxInputRange1)
+                            return "#ffffff";
+                        else
+                        {
+                            if(d<minInputRange2)
+                                return colorScale(minInputRange2);
+                            else if(d>maxInputRange2)
+                                return colorScale(maxInputRange2);
+                            else
+                                return colorScale(d);
+                        }
+                    }
+                    else return "url(#diagonalHatch)";  
+
+                });
+            d3.select("#md_colorspec").select("svg").selectAll(".cellLegend")
+                .style("fill", function(d, i) {
+                    return colorScale1(d);
+                });  
+
+            changeLegentTextForRawDataMatrix(conditionName);
+        }
+        else if(conditionName == "CenterCol")
+        {
+            var colorScale1 = d3.scaleSequential()
+                        .domain([max_value, min_value])
+                        .interpolator(colorID);  
+
+            var svg = d3.select(heatmapId);
+            var t = svg.transition().duration(500);
+
+
+            t.selectAll(".rect").selectAll(".cell")
+                .style("fill", function(d) {
+                    var colnum = $(this).parent().data("col");
+                    var colorScale;
+
+                    if(data_min_value[colnum]<minInputRange2)
+                    {
+                        if(data_max_value[colnum]>maxInputRange2)
+                        {
+                            if(Math.abs(maxInputRange2) > Math.abs(minInputRange2))
+                            {
+                                if(rdPaletteReverse)
+                                    colorScale = d3.scaleSequential()
+                                    .domain([-1*Math.abs(maxInputRange2), Math.abs(maxInputRange2)])
+                                    .interpolator(colorID); 
+                                else
+                                    colorScale = d3.scaleSequential()
+                                    .domain([Math.abs(maxInputRange2), -1*Math.abs(maxInputRange2)])
+                                    .interpolator(colorID); 
+                            }
+                            else
+                            {
+                                if(rdPaletteReverse)
+                                    colorScale = d3.scaleSequential()
+                                    .domain([-1*Math.abs(minInputRange2), Math.abs(minInputRange2)])
+                                    .interpolator(colorID); 
+                                else
+                                    colorScale = d3.scaleSequential()
+                                    .domain([Math.abs(minInputRange2), -1*Math.abs(minInputRange2)])
+                                    .interpolator(colorID);    
+                            }
+                        }
+                        else
+                        {
+                            if(rdPaletteReverse)
+                                colorScale = d3.scaleSequential()
+                                .domain([-1*Math.abs(minInputRange2), Math.abs(minInputRange2)])
+                                .interpolator(colorID); 
+                            else
+                                colorScale = d3.scaleSequential()
+                                .domain([Math.abs(minInputRange2), -1*Math.abs(minInputRange2)])
+                                .interpolator(colorID);                   
+                        }
+                    }
+                    else
+                    {
+                        if(data_max_value[colnum]>maxInputRange2)
+                        {
+                            //if(Math.abs(data_max_value[colnum])>Math.abs(data_min_value[colnum]))
+                            //{
+                            if(rdPaletteReverse)
+                                colorScale = d3.scaleSequential()
+                                .domain([-1*Math.abs(maxInputRange2), Math.abs(maxInputRange2)])
+                                .interpolator(colorID);  
+                            else
+                                colorScale = d3.scaleSequential()
+                                .domain([Math.abs(maxInputRange2), -1*Math.abs(maxInputRange2)])
+                                .interpolator(colorID);  
+                            //}
+                        }
+                        else
+                        {
+                            if(Math.abs(data_max_value[colnum])>Math.abs(data_min_value[colnum]))
+                            {
+                                if(rdPaletteReverse)
+                                    colorScale = d3.scaleSequential()
+                                    .domain([-1*Math.abs(data_max_value[colnum]), Math.abs(data_max_value[colnum])])
+                                    .interpolator(colorID);   
+                                else
+                                    colorScale = d3.scaleSequential()
+                                    .domain([Math.abs(data_max_value[colnum]), -1*Math.abs(data_max_value[colnum])])
+                                    .interpolator(colorID);    
+                            }
+                            else
+                            {
+                                if(rdPaletteReverse)
+                                    colorScale = d3.scaleSequential()
+                                    .domain([-1*Math.abs(data_min_value[colnum]), Math.abs(data_min_value[colnum])])
+                                    .interpolator(colorID);   
+                                else
+                                    colorScale = d3.scaleSequential()
+                                    .domain([Math.abs(data_min_value[colnum]), -1*Math.abs(data_min_value[colnum])])
+                                    .interpolator(colorID);    
+                            }
+                        }
+                    }
+                    if (d != null) 
+                    {
+                        let arr = $(this).parent().data("name").split(',');
+                            let avg = (Number(arr[0])+Number(arr[1]))/2;
+                        if(avg<minInputRange1 || avg>maxInputRange1)
+                            return "#ffffff";
+                        else
+                        {
+                            if(d<minInputRange2)
+                                return colorScale(minInputRange2);
+                            else if(d>maxInputRange2)
+                                return colorScale(maxInputRange2);
+                            else
+                                return colorScale(d);
+                        }
+                    }
+
+                });
+
+            d3.select("#md_colorspec").select("svg").selectAll(".cellLegend")
+                .style("fill", function(d, i) {
+                    return colorScale1(d);
+                });  
+
+            changeLegentTextForRawDataMatrix(conditionName);
+        }
     }
     else if(optionTargetDataMap == "rp")
     {
@@ -1455,7 +1756,9 @@ function changePalette(conditionName, paletteName, heatmapId) {
             .style("fill", function(d) {
                     if (d != null)
                     {
-                        if(d<minInputRange1 || d>maxInputRange1)
+                        if(d<minInputRange1)
+                            return "#ffffff";
+                        else if(d>maxInputRange1)
                             return "#ffffff";
                         else
                         {
