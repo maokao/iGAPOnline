@@ -1146,7 +1146,7 @@ function changePalette(conditionName, paletteName, heatmapId) {
         var maxInputRange2 = $('#inputRange2').data('slider').getValue()[1];
         if(conditionName == "RangeMatrix")
         {
-            var colorScale = null;;
+            var colorScale = null;
             if(rdPaletteReverse)
                 colorScale = d3.scaleSequential()
                         //.domain([max_value, min_value])
@@ -1196,7 +1196,7 @@ function changePalette(conditionName, paletteName, heatmapId) {
             t.select("#mv").selectAll(".cell")
                 .style("fill", function(d) {
 
-                    var rownum = d3.select(this).attr("row");
+                    var rownum = $(this).parent().data("row");
                     var colorScale;
                     if(data_row_min_value[rownum]<minInputRange2)
                     {
@@ -1250,7 +1250,9 @@ function changePalette(conditionName, paletteName, heatmapId) {
                     }
                     if (d != null) 
                     {
-                        if(d<minInputRange1 || d>maxInputRange1)
+                        let arr = $(this).parent().data("name").split(',');
+                        let avg = (Number(arr[0])+Number(arr[1]))/2;
+                        if(avg<minInputRange1 || avg>maxInputRange1)
                             return "#ffffff";
                         else
                         {
@@ -1280,10 +1282,11 @@ function changePalette(conditionName, paletteName, heatmapId) {
 
             var svg = d3.select(heatmapId);
             var t = svg.transition().duration(500);
-            t.select("#mv").selectAll(".cell")
-                .style("fill", function(d) {
 
-                    var colnum = d3.select(this).attr("col");
+
+            t.selectAll(".rect").selectAll(".cell")
+                .style("fill", function(d) {
+                    var colnum = $(this).parent().data("col");
                     var colorScale;
                     if(data_min_value[colnum]<minInputRange2)
                     {
@@ -1337,7 +1340,9 @@ function changePalette(conditionName, paletteName, heatmapId) {
                     }
                     if (d != null) 
                     {
-                        if(d<minInputRange1 || d>maxInputRange1)
+                        let arr = $(this).parent().data("name").split(',');
+                            let avg = (Number(arr[0])+Number(arr[1]))/2;
+                        if(avg<minInputRange1 || avg>maxInputRange1)
                             return "#ffffff";
                         else
                         {
@@ -1349,9 +1354,9 @@ function changePalette(conditionName, paletteName, heatmapId) {
                                 return colorScale(d);
                         }
                     }
-                    else return "url(#diagonalHatch)";  
-                     
+
                 });
+
             d3.select("#md_colorspec").select("svg").selectAll(".cellLegend")
                 .style("fill", function(d, i) {
                     return colorScale1(d);
@@ -2358,6 +2363,12 @@ function setupHeatmap2(nowdata, nowID, x, y, mode, heatmapId, colorID) {
                 //return d.idx;
                 return d;
             })
+            .attr("data-row", function(d) {
+                return this.parentNode.id;
+            })
+            .attr("data-col", function(d, i) {
+                return i;
+            })
             .attr("transform", function(d, i) {
                 return "translate(" + i* cellWidth + "," + 0 + ")"; 
             })
@@ -3269,45 +3280,34 @@ function shuffle(array) {
 //setAllParameters(tmp_dataFileName, tmp_hasRowName, tmp_hasColName, tmp_yd, tmp_yc, tmp_xd, tmp_xc)
 function loadExample(filename) {
     
-    if(filename == "iris")
-    {
-        resetAllParameters("#heatmap");
-        removeAllColorLegend();
-        var sep = ",";
-        var dataFileName = "iris.csv";   
-        setAllParameters(dataFileName, true, true, 1, 0, 0, 0);
-        heatmap_display(dataFileName, "#heatmap", "Spectral", sep); 
-    }
-    else if(filename == "crab")
+    if(filename == "bats")
     {
         resetAllParameters("#heatmap");
         removeAllColorLegend();
         var sep = "\t";
-        var dataFileName = "CRAB.txt";   
-        setAllParameters(dataFileName, true, true, 3, 1, 0, 0);
-        heatmap_display(dataFileName, "#heatmap", "Spectral", sep); 
-    }
-    else if(filename == "mona_lisa")
-    {
-        resetAllParameters("#heatmap");
-        removeAllColorLegend();
-        var sep = "\t";
-        var dataFileName = "Mona_Lisa_300_217_1.txt";   
+        var dataFileName = "bats_iGAP.txt";   
         setAllParameters(dataFileName, true, true, 0, 0, 0, 0);
         heatmap_display(dataFileName, "#heatmap", "Spectral", sep); 
     }
-    else if(filename == "journal_survey")
+    else if(filename == "china_meteorolagical_1988")
     {
         resetAllParameters("#heatmap");
         removeAllColorLegend();
         var sep = "\t";
-        var dataFileName = "Journal_Survey.txt";   
-        setAllParameters(dataFileName, true, true, 0, 3, 3, 0);
-        $('#palette').val("Grey");
-        rdPaletteReverse = true;
-        $("#isColorReverse").prop("checked", true);
-        heatmap_display(dataFileName, "#heatmap", "Grey", sep); 
+        var dataFileName = "china_meteorolagical_1988_iGAP.txt";   
+        setAllParameters(dataFileName, true, true, 3, 3, 0, 0);
+        heatmap_display(dataFileName, "#heatmap", "RdBu", sep); 
     }
+    else if(filename == "amc_2010_rank")
+    {
+        resetAllParameters("#heatmap");
+        removeAllColorLegend();
+        var sep = "\t";
+        var dataFileName = "amc_2010_rank_interval_pop_iGAP.txt";   
+        setAllParameters(dataFileName, true, true, 1, 5, 0, 0);
+        heatmap_display(dataFileName, "#heatmap", "Spectral", sep); 
+    }
+
 }
 
 //#########################################################
