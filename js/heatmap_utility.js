@@ -1384,7 +1384,7 @@ function changePalette(conditionName, paletteName, heatmapId) {
         else if(conditionName == "CenterMatrix")
         {
             var colorScale = null;
-            //console.log("min: "+minInputRange2+", max: "+maxInputRange2);
+            console.log("min: "+minInputRange2+", max: "+maxInputRange2);
             if(rdPaletteReverse)
                 colorScale = d3.scaleSequential()
                         //.domain([max_value, min_value])
@@ -3579,6 +3579,28 @@ function shuffle(array) {
     [array[i], array[j]] = [array[j], array[i]];
   }
 }
+
+//#########################################################
+function *generator()
+{
+    for(var i=0; arguments.length; i++)
+    {
+        yield arguments[i];
+    }
+}
+
+function recursion(generator)
+{
+    var next = generator.next();
+    if(!next.done)
+    {
+        next.value(function() 
+        {
+            recursion(generator);
+        })
+    }
+}
+
 //#########################################################
 //setAllParameters(tmp_dataFileName, tmp_hasRowName, tmp_hasColName, tmp_yd, tmp_yc, tmp_xd, tmp_xc)
 function loadExample(filename) {
@@ -3600,6 +3622,11 @@ function loadExample(filename) {
         var dataFileName = "china_meteorolagical_1988_iGAP.txt";   
         setAllParameters(dataFileName, true, true, 3, 3, 0, 0);
         heatmap_display(dataFileName, "#heatmap", "RdBu", sep); 
+        document.getElementById("palette").value = "RdBu";
+        //document.getElementById("displaycondition").value = "CenterMatrix";
+        //recursion(changeDisplayCondition("CenterMatrix", "RdBu", "#heatmap"), changePalette("CenterMatrix", "RdBu", "#heatmap"));
+        //changeDisplayCondition("CenterMatrix", "RdBu", "#heatmap");
+        //changePalette("CenterMatrix", "RdBu", "#heatmap");
     }
     else if(filename == "amc_2010_rank")
     {
