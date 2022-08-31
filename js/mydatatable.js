@@ -10,7 +10,8 @@ function handleFiles() {
     if(importDataFileExtension == "csv")
         sep = ",";
     else
-        sep = "\t";
+        sep = "\t"; 
+
     document.getElementById("chooseInput_2").checked=true;
     openModal();
     if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -35,7 +36,8 @@ function handleFiles() {
                 Papa.parse(csvString, {
                     //"download": true,
                     "header": true,
-                    "delimitersToGuess": [',', '\t'],
+                    //"delimitersToGuess": [',', '\t'],
+                    "delimitersToGuess": sep,
                     "skipEmptyLines": true,
                     "dynamicTyping": false,
                     //"worker": true,
