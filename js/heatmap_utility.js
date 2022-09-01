@@ -3602,6 +3602,58 @@ function recursion(generator)
 }
 
 //#########################################################
+function task1(dataFileName, sep)
+{
+    return new Promise(resolve => {
+        /*setTimeout(() => {
+            heatmap_display(dataFileName, "#heatmap", "RdBu", sep);   
+            console.log("** load data **");
+            resolve('done');
+        }, 100);*/
+        heatmap_display(dataFileName, "#heatmap", "RdBu", sep);   
+        console.log("** load data **");
+        resolve('done');
+    })
+}
+
+function task2()
+{
+    return new Promise(resolve => {
+        /*setTimeout(() => {
+            changeDisplayCondition("CenterMatrix", "RdBu", "#heatmap");
+            console.log("** set display condition **");
+            resolve('done');
+        }, 100);*/
+        changeDisplayCondition("CenterMatrix", "RdBu", "#heatmap");
+        console.log("** set display condition **");
+        resolve('done');      
+    })
+}
+
+function task3()
+{
+    return new Promise(resolve => {
+        setTimeout(() => {
+            changePalette("CenterMatrix", "RdBu", "#heatmap");
+            console.log("** draw plot **");
+            resolve('done');
+        }, 100);
+    
+    })
+}
+
+
+async function syncLoadData(dataFileName, sep)
+{
+    //await heatmap_display(dataFileName, "#heatmap", "RdBu", sep); 
+    await task1(dataFileName, sep);
+    await task2();
+    await task3();
+    //await changeDisplayCondition("CenterMatrix", "RdBu", "#heatmap");
+    //await changePalette("CenterMatrix", "RdBu", "#heatmap");
+}
+
+//#########################################################
 //setAllParameters(tmp_dataFileName, tmp_hasRowName, tmp_hasColName, tmp_yd, tmp_yc, tmp_xd, tmp_xc)
 function loadExample(filename) {
     
@@ -3621,8 +3673,9 @@ function loadExample(filename) {
         var sep = "\t";
         var dataFileName = "china_meteorolagical_1988_iGAP.txt";   
         setAllParameters(dataFileName, true, true, 3, 3, 0, 0);
-        heatmap_display(dataFileName, "#heatmap", "RdBu", sep); 
+        //heatmap_display(dataFileName, "#heatmap", "RdBu", sep); 
         document.getElementById("palette").value = "RdBu";
+        syncLoadData(dataFileName, sep);
         //document.getElementById("displaycondition").value = "CenterMatrix";
         //recursion(changeDisplayCondition("CenterMatrix", "RdBu", "#heatmap"), changePalette("CenterMatrix", "RdBu", "#heatmap"));
         //changeDisplayCondition("CenterMatrix", "RdBu", "#heatmap");
