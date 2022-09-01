@@ -3675,8 +3675,9 @@ function loadExample(filename) {
         setAllParameters(dataFileName, true, true, 3, 3, 0, 0);
         //heatmap_display(dataFileName, "#heatmap", "RdBu", sep); 
         document.getElementById("palette").value = "RdBu";
+        document.getElementById("displaycondition").value = "CenterMatrix";
         syncLoadData(dataFileName, sep);
-        //document.getElementById("displaycondition").value = "CenterMatrix";
+        
         //recursion(changeDisplayCondition("CenterMatrix", "RdBu", "#heatmap"), changePalette("CenterMatrix", "RdBu", "#heatmap"));
         //changeDisplayCondition("CenterMatrix", "RdBu", "#heatmap");
         //changePalette("CenterMatrix", "RdBu", "#heatmap");
