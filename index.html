@@ -69,7 +69,7 @@
   <script>
   $(document).ready(function() {
 
-    setAllParameters("bats_iGAP.txt", true, true, 0, 0, 0, 0);
+    setAllParameters("amc_2010_rank_interval_pop_iGAP.txt", true, true, 1, 5, 0, 0);
     heatmap_display(dataFileName, "#heatmap", "Spectral", "\t");
 
   });
@@ -317,9 +317,9 @@
                   <div>
                     <select id="exampleFileName" class="form-control form-control-sm" onchange="changeFileInput();">
                       <option value="null"> ----- </option>
-                      <option value="bats" selected> Bats </option>
-                      <option value="china_meteorolagical_1988"> China meteorolagical 1988 </option>
-                      <option value="amc_2010_rank"> Amc 2010 rank </option>
+                      <option value="amc_2010_rank" selected> Amc 2010 rank </option>
+                      <option value="bats"> Bats </option>
+                      <option value="china_meteorolagical_1988"> China meteorolagical 1988 </option>                     
                     </select>
                   </div>
                   <hr class="sidebar-divider d-none d-md-block">
